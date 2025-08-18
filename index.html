@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic Product Search - Image Upload & Description</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            margin-bottom: 40px;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #fafafa;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e8f2ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .preview-section {
+            margin-bottom: 40px;
+            display: none;
+        }
+
+        .preview-section.show {
+            display: block;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .description-section {
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .features {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .features h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 30px 20px;
+            }
+            
+            .upload-area {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Semantic Product Search</h1>
+            <p>Upload an image or describe what you're looking for. Our AI will find the perfect products for you!</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Click to upload an image or drag & drop</div>
+                    <div class="upload-hint">Supports: JPG, PNG, GIF (Max 10MB)</div>
+                    <input type="file" id="fileInput" class="file-input" accept="image/*">
+                </div>
+            </div>
+
+            <div class="preview-section" id="previewSection">
+                <img id="imagePreview" class="image-preview" alt="Preview">
+            </div>
+
+            <div class="description-section">
+                <div class="form-group">
+                    <label for="productDescription">Product Description (Optional)</label>
+                    <textarea 
+                        id="productDescription" 
+                        class="form-control" 
+                        placeholder="Describe what you're looking for... (e.g., 'comfortable running shoes', 'vintage style shirt', 'modern smartphone')"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Product Category (Optional)</label>
+                    <select id="category" class="form-control">
+                        <option value="">Select a category</option>
+                        <option value="clothing">👕 Clothing & Apparel</option>
+                        <option value="shoes">👟 Shoes & Footwear</option>
+                        <option value="electronics">📱 Electronics & Gadgets</option>
+                        <option value="home">🏠 Home & Garden</option>
+                        <option value="beauty">💄 Beauty & Personal Care</option>
+                        <option value="sports">⚽ Sports & Outdoor</option>
+                        <option value="automotive">🚗 Automotive</option>
+                        <option value="other">🔧 Other</option>
+                    </select>
+                </div>
+
+                <button class="search-btn" id="searchBtn" disabled>
+                    🔍 Find Similar Products
+                </button>
+            </div>
+
+            <div class="features">
+                <h3>✨ How It Works</h3>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">🖼️</div>
+                        <div class="feature-title">Image Analysis</div>
+                        <div class="feature-desc">AI analyzes your image to understand product type, style, and features</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🧠</div>
+                        <div class="feature-title">Smart Matching</div>
+                        <div class="feature-desc">Finds visually similar products using advanced CLIP embeddings</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📝</div>
+                        <div class="feature-title">Text Understanding</div>
+                        <div class="feature-desc">Understands your description semantically, not just keywords</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-title">Precise Results</div>
+                        <div class="feature-desc">Gets brand info, model details, and ranked recommendations</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewSection = document.getElementById('previewSection');
+        const imagePreview = document.getElementById('imagePreview');
+        const searchBtn = document.getElementById('searchBtn');
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+
+            // Validate file size (10MB limit)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB.');
+                return;
+            }
+
+            // Display preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                previewSection.classList.add('show');
+                searchBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Search button functionality
+        searchBtn.addEventListener('click', async () => {
+            const description = document.getElementById('productDescription').value;
+            const category = document.getElementById('category').value;
+            
+            // Show loading state
+            searchBtn.disabled = true;
+            searchBtn.textContent = '🔍 Searching...';
+            
+            try {
+                // Create FormData for the request
+                const formData = new FormData();
+                
+                // Add image if uploaded
+                if (fileInput.files[0]) {
+                    formData.append('image', fileInput.files[0]);
+                }
+                
+                // Add description and category
+                formData.append('description', description);
+                if (category) {
+                    formData.append('category', category);
+                }
+                
+                // Send request to backend
+                const response = await fetch('http://localhost:8000/api/v1/search/search', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const results = await response.json();
+                
+                // Display results
+                displaySearchResults(results);
+                
+            } catch (error) {
+                console.error('Search failed:', error);
+                alert(`Search failed: ${error.message}`);
+            } finally {
+                // Reset button state
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 Find Similar Products';
+            }
+        });
+        
+        // Function to display search results
+        function displaySearchResults(results) {
+            // Create results container if it doesn't exist
+            let resultsContainer = document.getElementById('searchResults');
+            if (!resultsContainer) {
+                resultsContainer = document.createElement('div');
+                resultsContainer.id = 'searchResults';
+                resultsContainer.className = 'search-results';
+                document.querySelector('.main-content').appendChild(resultsContainer);
+            }
+            
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+            
+            // Add results header
+            const header = document.createElement('h3');
+            header.innerHTML = `🎯 Search Results (${results.total_results} found)`;
+            header.style.marginTop = '30px';
+            header.style.marginBottom = '20px';
+            header.style.color = '#333';
+            resultsContainer.appendChild(header);
+            
+            // Add search metadata
+            const metadata = document.createElement('div');
+            metadata.className = 'search-metadata';
+            metadata.style.marginBottom = '20px';
+            metadata.style.padding = '15px';
+            metadata.style.background = '#f8f9fa';
+            metadata.style.borderRadius = '10px';
+            metadata.style.fontSize = '0.9rem';
+            metadata.style.color = '#666';
+            metadata.innerHTML = `
+                <strong>Search Type:</strong> ${results.query_type} | 
+                <strong>Total Products:</strong> ${results.search_metadata.total_products_in_db} | 
+                <strong>Similarity Threshold:</strong> ${results.search_metadata.similarity_threshold}
+            `;
+            resultsContainer.appendChild(metadata);
+            
+            // Display each recommendation
+            results.recommendations.forEach((product, index) => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.style.cssText = `
+                    background: white;
+                    border: 1px solid #e1e5e9;
+                    border-radius: 15px;
+                    padding: 20px;
+                    margin-bottom: 15px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    transition: transform 0.2s ease;
+                `;
+                
+                productCard.onmouseenter = () => {
+                    productCard.style.transform = 'translateY(-2px)';
+                    productCard.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+                };
+                
+                productCard.onmouseleave = () => {
+                    productCard.style.transform = 'translateY(0)';
+                    productCard.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+                };
+                
+                // Create product content
+                productCard.innerHTML = `
+                    <div style="display: flex; align-items: flex-start; gap: 20px;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                                <h4 style="margin: 0; color: #333; font-size: 1.2rem;">${product.name}</h4>
+                                <span style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                                    ${(product.similarity_score * 100).toFixed(1)}% Match
+                                </span>
+                            </div>
+                            
+                            <p style="color: #666; margin: 10px 0; line-height: 1.5;">${product.description}</p>
+                            
+                            <div style="display: flex; gap: 15px; margin: 15px 0; font-size: 0.9rem;">
+                                <span style="color: #667eea;"><strong>Category:</strong> ${product.category}</span>
+                                ${product.brand ? `<span style="color: #667eea;"><strong>Brand:</strong> ${product.brand}</span>` : ''}
+                                ${product.price ? `<span style="color: #28a745;"><strong>Price:</strong> $${product.price}</span>` : ''}
+                            </div>
+                            
+                            <div style="font-size: 0.8rem; color: #999;">
+                                Match Type: ${product.match_type} | Product ID: ${product.product_id}
+                            </div>
+                        </div>
+                        
+                        ${product.image_url ? `
+                            <div style="flex-shrink: 0;">
+                                <img src="${product.image_url}" alt="${product.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #e1e5e9;">
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                resultsContainer.appendChild(productCard);
+            });
+            
+            // Scroll to results
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
