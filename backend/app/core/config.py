@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     SENTENCE_TRANSFORMER_MODEL: str = "all-MiniLM-L6-v2"
     
     # Gemini Configuration for LLM alignment checks
-    GEMINI_API_KEY: Optional[str] = "AIzaSyBvejC__4bNQ4qf1kc9C5ooORaayyWYw24"
+    GEMINI_API_KEY: Optional[str] = ""
     
     # Search Configuration
     MAX_RECOMMENDATIONS: int = 5
